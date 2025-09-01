@@ -33,7 +33,7 @@ function App() {
         navigate("/dashboard");
       } catch (err) {
         dispatch(clearToken());
-        navigate("/");
+      
       }
     })();
   }
