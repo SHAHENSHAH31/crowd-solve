@@ -3,7 +3,7 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { setToken, clearToken } from "./authSlice";
 
 const baseQuery = fetchBaseQuery({
-  baseUrl: "http://localhost:3000",
+  baseUrl: "https://crowsolvebackend.onrender.com",
   credentials: "include", // for refresh token cookie
   prepareHeaders: (headers, { getState }) => {
     const token = getState().auth.accessToken;

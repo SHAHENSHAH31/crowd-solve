@@ -18,7 +18,7 @@ function App() {
   if (!accessToken) {
     (async () => {
       try {
-        const res = await fetch("http://localhost:3000/auth/refresh", {
+        const res = await fetch("https://crowsolvebackend.onrender.com/auth/refresh", {
           method: "POST",
           credentials: "include",
         });
