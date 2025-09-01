@@ -50,7 +50,7 @@ export const login = async (req, res) => {
 
 export const refresh = (req, res) => {
   const token = req.cookies.refreshToken;
-  if (!token || !refreshTokens.has(token)) {
+  if (!token) {
     return res.status(403).json({ message: "Refresh token invalid" });
   }
 

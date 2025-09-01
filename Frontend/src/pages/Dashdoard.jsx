@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { clearToken } from "../Services/authSlice";
 import {
   useUploadProblemMutation,
   useGetProblemsQuery,
   useSubmitSolutionMutation
 } from "../Services/authapi";
-import { useSelector } from "react-redux";
+import { useSelector,useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 
 export default function DashboardLayout() {
@@ -13,6 +14,7 @@ export default function DashboardLayout() {
   const [showForm, setShowForm] = useState(false);
   const [showSolutionForm, setShowSolutionForm] = useState(false);
   const [selectedProblem, setSelectedProblem] = useState(null);
+  const dispatch=useDispatch();
 
   const userId= useSelector((state)=>state.auth.user?.id);
 
@@ -29,7 +31,24 @@ export default function DashboardLayout() {
   const { data: problemsData, isFetching } = useGetProblemsQuery();
   const problems = problemsData?.problems || [];
 
-  const handleLogout = () => navigate("/");
+ const handleLogout = async () => {
+  try {
+    await fetch("http://localhost:3000/auth/logout", {
+      method: "POST",
+      credentials: "include", 
+    });
+
+    
+    dispatch(clearToken());
+
+   
+    navigate("/");
+  } catch (err) {
+    console.error("Logout failed:", err);
+    navigate("/"); 
+  }
+};
+
   const handleUploadProblem = () => setShowForm(true);
   const handleCloseForm = () => setShowForm(false);
 
@@ -151,58 +170,62 @@ export default function DashboardLayout() {
             }}
           >
             {problems.map((p) => (
-              <Link
+             <Link
   to={`/problems/${p._id}`}
   style={{ textDecoration: "none", color: "inherit" }}
   key={p._id}
 >
-              <div
-                key={p._id}
-                
-                style={{
-                  background: "#fff",
-                  borderRadius: "10px",
-                  padding: "15px",
-                  boxShadow: "0px 2px 8px rgba(0,0,0,0.1)",
-                  transition: "transform 0.2s",
-                   cursor: "pointer",
-                }}
-              >
-                {p.image?.url && (
-                  <img
-                    src={p.image.url}
-                    alt={p.title}
-                    style={{
-                      width: "100%",
-                      height: "180px",
-                      objectFit: "cover",
-                      borderRadius: "8px",
-                      marginBottom: "10px",
-                    }}
-                  />
-                )}
-                <h4 style={{ margin: "5px 0", color: "#222" }}>{p.title}</h4>
-                <p style={{ fontSize: "14px", color: "#555" }}>{p.description}</p>
-                <p style={{ fontSize: "13px", color: "#777", marginTop: "8px" }}>
-                  📍 <b>{p.location}</b>
-                </p>
-                <button
-                  onClick={() => handleGiveSolution(p)}
-                  style={{
-                    marginTop: "10px",
-                    padding: "8px 12px",
-                    backgroundColor: "#2196F3",
-                    color: "#fff",
-                    border: "none",
-                    borderRadius: "6px",
-                    cursor: "pointer",
-                    fontWeight: "bold",
-                  }}
-                >
-                  Give Solution
-                </button>
-              </div>
-              </Link>
+  <div
+    key={p._id}
+    style={{
+      background: "#fff",
+      borderRadius: "10px",
+      padding: "15px",
+      boxShadow: "0px 2px 8px rgba(0,0,0,0.1)",
+      transition: "transform 0.2s",
+      cursor: "pointer",
+    }}
+  >
+    {p.image?.url && (
+      <img
+        src={p.image.url}
+        alt={p.title}
+        style={{
+          width: "100%",
+          height: "180px",
+          objectFit: "cover",
+          borderRadius: "8px",
+          marginBottom: "10px",
+        }}
+      />
+    )}
+    <h4 style={{ margin: "5px 0", color: "#222" }}>{p.title}</h4>
+    <p style={{ fontSize: "14px", color: "#555" }}>{p.description}</p>
+    <p style={{ fontSize: "13px", color: "#777", marginTop: "8px" }}>
+      📍 <b>{p.location}</b>
+    </p>
+    <button
+      onClick={(e) => {
+        e.preventDefault();  // ⛔ stop Link navigation
+        e.stopPropagation(); // ⛔ stop bubbling
+        handleGiveSolution(p);
+      }}
+      style={{
+        marginTop: "10px",
+        padding: "8px 12px",
+        backgroundColor: "#2196F3",
+        color: "#fff",
+        border: "none",
+        borderRadius: "6px",
+        cursor: "pointer",
+        fontWeight: "bold",
+      }}
+    >
+      Give Solution
+    </button>
+  </div>
+</Link>
+
             ))}
           </div>
         )}
